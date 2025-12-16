@@ -315,6 +315,7 @@ async function generateImageVariations(imageBlob, style, customDescription) {
   }
 }
 //=====
+// Code not working with hosting properly
 
 // async function generateImageVariations(imageBlob, style, customDescription) {
 
@@ -454,6 +455,8 @@ async function generateVariationImage(prompt, variationNumber) {
     return { success: false, imageUrl: null };
   }
 }
+
+//code not working when i host my code on render
 
 // async function generateVariationImage(prompt, variationNumber) {
 
