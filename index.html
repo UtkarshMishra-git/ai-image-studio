@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Image Studio</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- HEADER -->
+        <header class="header">
+            <h1>✨ AI Image Studio</h1>
+            <p class="subtitle">Create stunning images and generate variations</p>
+        </header>
+
+        <!-- NAVIGATION TABS -->
+        <div class="nav-tabs">
+            <button class="tab-btn active" data-tab="generate">🎨 Generate Images</button>
+            <button class="tab-btn" data-tab="variations">🔄 Generate Variations</button>
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <main class="main-section">
+
+            <!-- ========== TAB 1: GENERATE IMAGES ========== -->
+            <div class="tab-content active" data-tab-content="generate">
+                <div class="card input-card">
+                    <h2>✍️ Create Your Image</h2>
+                    
+                    <!-- Prompt Input -->
+                    <div class="form-group">
+                        <label for="promptInput" class="form-label">📝 Your Prompt:</label>
+                        <textarea id="promptInput" class="form-control prompt-textarea" placeholder="Describe the image you want to create..." rows="5"></textarea>
+                    </div>
+
+                    <!-- Error message for empty prompt -->
+                    <div id="promptError" class="error-inline hidden">
+                        ⚠️ Please enter a prompt before enhancing
+                    </div>
+
+                    <!-- Style Select -->
+                    <div class="form-group">
+                        <label for="styleSelect" class="form-label">🎨 Visual Style:</label>
+                        <select id="styleSelect" class="form-control style-select">
+                            <option value="cinematic">🎬 Cinematic</option>
+                            <option value="realistic">📷 Realistic</option>
+                            <option value="cartoonish">🎨 Cartoonish</option>
+                            <option value="abstract">✨ Abstract</option>
+                            <option value="futuristic">🚀 Futuristic</option>
+                        </select>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="button-group">
+                        <button id="enhanceBtn" class="btn btn--primary btn--lg">⚡ Enhance Prompt</button>
+                        <button id="cancelBtn" class="btn btn--secondary btn--lg">✕ Clear</button>
+                    </div>
+                </div>
+
+                <!-- Enhanced Section (Hidden Initially) -->
+                <div id="enhancedSection" class="card enhanced-section hidden">
+                    <h2>✨ Your Enhanced Prompt</h2>
+                    <div id="enhancedPromptDisplay" class="enhanced-prompt-display"></div>
+                    <div class="button-group">
+                        <button id="generateImageBtn" class="btn btn--primary btn--lg">🖼️ Generate Image</button>
+                        <button id="cancelEnhancedBtn" class="btn btn--secondary btn--lg">✕ Start Over</button>
+                    </div>
+
+                    <!-- Generated Image Container (Hidden Initially) -->
+                    <div id="imageContainer" class="image-container hidden">
+                        <h3>🎨 Generated Image</h3>
+                        <div class="image-wrapper">
+                            <img id="generatedImage" src="" alt="Generated image" class="generated-image">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== TAB 2: GENERATE VARIATIONS ========== -->
+            <div class="tab-content" data-tab-content="variations">
+                <div class="card input-card">
+                    <h2>📸 Generate Image Variations</h2>
+                    
+                    <!-- UPLOAD AREA -->
+                    <div class="form-group">
+                        <label class="form-label">📷 Upload Your Image:</label>
+                        <div class="upload-area" id="uploadArea">
+                            <input type="file" id="imageUpload" class="image-upload-input" accept="image/*">
+                            <label for="imageUpload" class="upload-label">
+                                <div class="upload-icon">📷</div>
+                                <div class="upload-text">Click to upload or drag & drop</div>
+                                <div class="upload-hint">JPG, PNG, GIF, WebP (Max 25MB)</div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- UPLOADED IMAGE PREVIEW (Shows actual image) -->
+                    <div id="uploadPreview" class="upload-preview-image hidden">
+                        <h3>📸 Your Uploaded Image</h3>
+                        <div class="uploaded-image-container">
+                            <img id="uploadedImage" src="" alt="Uploaded image" class="uploaded-image">
+                        </div>
+                    </div>
+
+                    <!-- STYLE DROPDOWN -->
+                    <div class="form-group">
+                        <label for="variationStyle" class="form-label">🎨 Variation Style:</label>
+                        <select id="variationStyle" class="form-control style-select">
+                            <option value="same_style">🔄 Same Style</option>
+                            <option value="cinematic">🎬 Cinematic</option>
+                            <option value="oil_painting">🖌️ Oil Painting</option>
+                            <option value="cartoon">🎨 Cartoon</option>
+                            <option value="realistic">📷 Realistic</option>
+                            <option value="abstract">✨ Abstract</option>
+                        </select>
+                    </div>
+
+                    <!-- DESCRIPTION TEXTAREA -->
+                    <div class="form-group">
+                        <label for="variationPrompt" class="form-label">✍️ Description (Optional):</label>
+                        <textarea id="variationPrompt" class="form-control prompt-textarea" placeholder="Add specific changes or style details for variations..." rows="3"></textarea>
+                    </div>
+
+                    <!-- ACTION BUTTONS -->
+                    <div class="button-group">
+                        <button id="generateVariationsBtn" class="btn btn--primary btn--lg">🔄 Generate 4 Variations</button>
+                        <button id="cancelVariationsBtn" class="btn btn--secondary btn--lg">✕ Clear</button>
+                    </div>
+                </div>
+
+                <!-- VARIATIONS GRID (2x2 Layout) -->
+                <div id="variationsSection" class="card variations-section hidden">
+                    <h2>🎨 Generated Variations</h2>
+                    <div id="variationsGrid" class="variations-grid"></div>
+                </div>
+            </div>
+
+            <!-- LOADING SPINNER (Hidden Initially) -->
+            <div id="loadingSpinner" class="loading-spinner hidden">
+                <div class="spinner"></div>
+                <p id="loadingText">🔄 Processing your request...</p>
+            </div>
+
+            <!-- ERROR MESSAGE (Hidden Initially) -->
+            <div id="errorMessage" class="error-message hidden"></div>
+
+        </main>
+
+        <!-- FOOTER -->
+        <footer class="footer">
+            <p>🚀 AI Image Studio</p>
+        </footer>
+    </div>
+
+    <!-- SCRIPTS (Load order: api.js FIRST, then script.js) -->
+    <!-- <script src="Extra4/api-main.js"></script> -->
+     <script src="api.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
