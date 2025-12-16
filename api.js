@@ -256,154 +256,244 @@ return descriptions[Math.floor(Math.random() * descriptions.length)];
 
 // ===== GENERATE IMAGE VARIATIONS =====
 
+//=====
 async function generateImageVariations(imageBlob, style, customDescription) {
-
-try {
-
-console.log('🔄 Starting variation generation...');
-
-console.log(`📸 Image size: ${imageBlob.size} bytes`);
-
-console.log(`🎨 Style: ${style}`);
-
-// Step 1: Analyze image with Deep AI (or fallback)
-const analysisResult = await analyzeImageWithDeepAI(imageBlob);
-
-if (!analysisResult.success) {
-
-throw new Error('Failed to analyze image');
-
+  try {
+    console.log('🔄 Starting variation generation...');
+    
+    // Step 1: Analyze image
+    const analysisResult = await analyzeImageWithDeepAI(imageBlob);
+    if (!analysisResult.success) throw new Error('Failed to analyze image');
+    
+    const imageAnalysis = analysisResult.analysis;
+    console.log('✅ Image analysis complete');
+    
+    // Step 2: Create prompts
+    const styleDescriptions = {
+      same_style: 'in the same artistic style',
+      cinematic: 'in cinematic style with dramatic lighting',
+      oil_painting: 'as an oil painting with visible brushstrokes',
+      cartoon: 'as a cartoon or animated illustration',
+      realistic: 'in photorealistic style with enhanced detail',
+      abstract: 'as an abstract artistic interpretation'
+    };
+    
+    const styleDesc = styleDescriptions[style] || styleDescriptions.same_style;
+    const additionalContext = customDescription ? ` ${customDescription}` : '';
+    
+    const variationPrompts = [
+      `Create a variation of: ${imageAnalysis} - angle 1, ${styleDesc}${additionalContext}`,
+      `Create a variation of: ${imageAnalysis} - angle 2, different perspective, ${styleDesc}${additionalContext}`,
+      `Create a variation of: ${imageAnalysis} - angle 3, alternate composition, ${styleDesc}${additionalContext}`,
+      `Create a variation of: ${imageAnalysis} - angle 4, unique view, ${styleDesc}${additionalContext}`
+    ];
+    
+    // Step 3: Generate ONE BY ONE (NO PARALLEL)
+    const variations = [];
+    for (let i = 0; i < variationPrompts.length; i++) {
+      console.log(`🎨 Generating variation ${i+1}/4...`);
+      const result = await generateVariationImage(variationPrompts[i], i + 1);
+      
+      if (result.success) {
+        variations.push(result.imageUrl);
+      }
+      
+      // 3 second delay between each (IMPORTANT!)
+      if (i < variationPrompts.length - 1) {
+        await new Promise(resolve => setTimeout(resolve, 3000));
+      }
+    }
+    
+    return {
+      success: true,
+      variations: variations.filter(url => url),
+      generatedCount: variations.filter(url => url).length
+    };
+    
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
 }
+//=====
 
-const imageAnalysis = analysisResult.analysis;
+// async function generateImageVariations(imageBlob, style, customDescription) {
 
-console.log('✅ Image analysis complete');
+// try {
 
-// Step 2: Create variation styles
+// console.log('🔄 Starting variation generation...');
 
-const styleDescriptions = {
+// console.log(`📸 Image size: ${imageBlob.size} bytes`);
 
-same_style: 'in the same artistic style',
+// console.log(`🎨 Style: ${style}`);
 
-cinematic: 'in cinematic style with dramatic lighting',
+// // Step 1: Analyze image with Deep AI (or fallback)
+// const analysisResult = await analyzeImageWithDeepAI(imageBlob);
 
-oil_painting: 'as an oil painting with visible brushstrokes',
+// if (!analysisResult.success) {
 
-cartoon: 'as a cartoon or animated illustration',
+// throw new Error('Failed to analyze image');
 
-realistic: 'in photorealistic style with enhanced detail',
+// }
 
-abstract: 'as an abstract artistic interpretation'
+// const imageAnalysis = analysisResult.analysis;
 
-};
+// console.log('✅ Image analysis complete');
 
-const styleDesc = styleDescriptions[style] || styleDescriptions.same_style;
+// // Step 2: Create variation styles
 
-const additionalContext = customDescription ? ` ${customDescription}` : '';
+// const styleDescriptions = {
 
-// Step 3: Create 4 variation prompts based on analysis
+// same_style: 'in the same artistic style',
 
-const variationPrompts = [
+// cinematic: 'in cinematic style with dramatic lighting',
 
-`Create a variation of: ${imageAnalysis} - angle 1, ${styleDesc}${additionalContext}`,
+// oil_painting: 'as an oil painting with visible brushstrokes',
 
-`Create a variation of: ${imageAnalysis} - angle 2, different perspective, ${styleDesc}${additionalContext}`,
+// cartoon: 'as a cartoon or animated illustration',
 
-`Create a variation of: ${imageAnalysis} - angle 3, alternate composition, ${styleDesc}${additionalContext}`,
+// realistic: 'in photorealistic style with enhanced detail',
 
-`Create a variation of: ${imageAnalysis} - angle 4, unique view, ${styleDesc}${additionalContext}`
+// abstract: 'as an abstract artistic interpretation'
 
-];
+// };
 
-console.log('📝 Variation prompts created');
+// const styleDesc = styleDescriptions[style] || styleDescriptions.same_style;
 
-// Step 4: Generate all 4 variations in parallel
+// const additionalContext = customDescription ? ` ${customDescription}` : '';
 
-const variationPromises = variationPrompts.map((varPrompt, index) =>
+// // Step 3: Create 4 variation prompts based on analysis
 
-generateVariationImage(varPrompt, index + 1)
+// const variationPrompts = [
 
-);
+// `Create a variation of: ${imageAnalysis} - angle 1, ${styleDesc}${additionalContext}`,
 
-const results = await Promise.all(variationPromises);
+// `Create a variation of: ${imageAnalysis} - angle 2, different perspective, ${styleDesc}${additionalContext}`,
 
-const successCount = results.filter(r => r.success).length;
+// `Create a variation of: ${imageAnalysis} - angle 3, alternate composition, ${styleDesc}${additionalContext}`,
 
-console.log(`✅ Generated ${successCount}/4 variations`);
+// `Create a variation of: ${imageAnalysis} - angle 4, unique view, ${styleDesc}${additionalContext}`
 
-if (successCount === 0) {
+// ];
 
-throw new Error('Failed to generate any variations');
+// console.log('📝 Variation prompts created');
 
-}
+// // Step 4: Generate all 4 variations in parallel
 
-return {
+// const variationPromises = variationPrompts.map((varPrompt, index) =>
 
-success: true,
+// generateVariationImage(varPrompt, index + 1)
 
-variations: results.map(r => r.imageUrl).filter(url => url !== null),
+// );
 
-generatedCount: successCount
+// const results = await Promise.all(variationPromises);
 
-};
+// const successCount = results.filter(r => r.success).length;
 
-} catch (error) {
+// console.log(`✅ Generated ${successCount}/4 variations`);
 
-console.error('Error generating variations:', error);
+// if (successCount === 0) {
 
-return {
+// throw new Error('Failed to generate any variations');
 
-success: false,
+// }
 
-error: error.message || 'Failed to generate variations'
+// return {
 
-};
+// success: true,
 
-}
+// variations: results.map(r => r.imageUrl).filter(url => url !== null),
 
-}
+// generatedCount: successCount
+
+// };
+
+// } catch (error) {
+
+// console.error('Error generating variations:', error);
+
+// return {
+
+// success: false,
+
+// error: error.message || 'Failed to generate variations'
+
+// };
+
+// }
+
+// }
 
 // ===== HELPER: Generate Single Variation =====
 
 async function generateVariationImage(prompt, variationNumber) {
-
-try {
-
-const encodedPrompt = encodeURIComponent(prompt);
-
-const imageUrl = `${IMAGE_API_ENDPOINT}${encodedPrompt}?width=512&height=512&nologo=true`;
-
-console.log(`🎨 Generating variation ${variationNumber}...`);
-
-const response = await fetch(imageUrl, {
-
-method: 'GET',
-
-headers: { 'Accept': 'image/*' }
-
-});
-
-if (!response.ok) throw new Error(`Variation ${variationNumber}: ${response.status}`);
-
-const blob = await response.blob();
-
-if (!blob.type.includes('image')) throw new Error('Not an image');
-
-const imageDataUrl = URL.createObjectURL(blob);
-
-console.log(`✅ Variation ${variationNumber} generated!`);
-
-return { success: true, imageUrl: imageDataUrl };
-
-} catch (error) {
-
-console.error(`Variation ${variationNumber} error:`, error);
-
-return { success: false, imageUrl: null };
-
+  try {
+    const encodedPrompt = encodeURIComponent(prompt);
+    const imageUrl = `${IMAGE_API_ENDPOINT}${encodedPrompt}?width=512&height=512&nologo=true`;
+    
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 90000); // 90s timeout
+    
+    const response = await fetch(imageUrl, {
+      method: 'GET',
+      headers: { 'Accept': 'image/*' },
+      signal: controller.signal
+    });
+    
+    clearTimeout(timeoutId);
+    
+    if (!response.ok) throw new Error(`Variation ${variationNumber}: ${response.status}`);
+    const blob = await response.blob();
+    
+    if (!blob.type.includes('image')) throw new Error('Not an image');
+    
+    const imageDataUrl = URL.createObjectURL(blob);
+    return { success: true, imageUrl: imageDataUrl };
+    
+  } catch (error) {
+    console.error(`Variation ${variationNumber} error:`, error);
+    return { success: false, imageUrl: null };
+  }
 }
 
-}
+// async function generateVariationImage(prompt, variationNumber) {
+
+// try {
+
+// const encodedPrompt = encodeURIComponent(prompt);
+
+// const imageUrl = `${IMAGE_API_ENDPOINT}${encodedPrompt}?width=512&height=512&nologo=true`;
+
+// console.log(`🎨 Generating variation ${variationNumber}...`);
+
+// const response = await fetch(imageUrl, {
+
+// method: 'GET',
+
+// headers: { 'Accept': 'image/*' }
+
+// });
+
+// if (!response.ok) throw new Error(`Variation ${variationNumber}: ${response.status}`);
+
+// const blob = await response.blob();
+
+// if (!blob.type.includes('image')) throw new Error('Not an image');
+
+// const imageDataUrl = URL.createObjectURL(blob);
+
+// console.log(`✅ Variation ${variationNumber} generated!`);
+
+// return { success: true, imageUrl: imageDataUrl };
+
+// } catch (error) {
+
+// console.error(`Variation ${variationNumber} error:`, error);
+
+// return { success: false, imageUrl: null };
+
+// }
+
+// }
 
 // ===== HELPER: Convert Blob to Base64 =====
 
