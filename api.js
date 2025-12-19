@@ -7,7 +7,7 @@ const IMAGE_API_ENDPOINT = 'https://image.pollinations.ai/prompt/';
 // ===== DEEP AI API CONFIGURATION =====
 
 // Using Deep AI for image captioning/analysis (Better quality than Hugging Face)
-const DEEP_AI_API_KEY = '72d8b447-1e06-41ec-89c9-768351cccd9d'; // Get free key from: https://deepai.org/api-keys (OPTIONAL - fallback works without it)
+const DEEP_AI_API_KEY = ''; // Get free key from: https://deepai.org/api-keys (OPTIONAL - fallback works without it)
 const DEEP_AI_ENDPOINT = 'https://api.deepai.org/api/neuraltalk';
 
 // ===== ENHANCE PROMPT =====
